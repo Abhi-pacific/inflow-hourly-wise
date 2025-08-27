@@ -73,7 +73,7 @@ if raw_file_uploaded and roaster_file_uploaded:
 
 
     # Abondon Code
-    Inflow_hourly_abondon = Inflow_hourly[((Inflow_hourly['Case Closed By Advisor'] == 'System') | (Inflow_hourly['Case Closed By Advisor'].empty))]
+    Inflow_hourly_abondon = Inflow_hourly[((Inflow_hourly['Case Closed By Advisor'] == 'System') |(Inflow_hourly['Case Closed By Advisor'].isnull()))]
     Inflow_hourly_abondon_pivot  = Inflow_hourly_abondon.pivot_table(index=Inflow_hourly_abondon['Case Creation time'].dt.hour.values, values='Case Reference Id', aggfunc='count')
     Inflow_hourly_abondon_pivot.index = [pd.to_datetime(str(h),format='%H').strftime('%I %p') for h in Inflow_hourly_abondon_pivot.index]
     Inflow_hourly_abondon_pivot.reset_index(names='Time_1',inplace=True)
@@ -185,4 +185,5 @@ if raw_file_uploaded and roaster_file_uploaded:
     # Showing the data frame
 
     st.dataframe(Inflow_hourly_count)
+    st.write('Thanks for using, have greate day 😊')
 
