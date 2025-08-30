@@ -30,7 +30,11 @@ if raw_file_uploaded and roaster_file_uploaded:
     # parsing the data for both the files.
 
     raw_parsed = raw_file.parse('Main File')
-    roaster_raw = roaster_file.parse('Main Roaster')
+    roaster_raw = roaster_file.parse('Roaster')
+
+    # converting to the lower case
+    roaster_raw['Emp Name']= roaster_raw['Emp Name'].str.lower()
+    raw_parsed['Case First Assigned to Advisor'] = raw_parsed['Case First Assigned to Advisor'].str.lower()
 
     # storeing the length of the data for MIS dash board
     overall_inflow = len(raw_parsed)
@@ -376,10 +380,79 @@ if raw_file_uploaded and roaster_file_uploaded:
         ] = 'Ratio-"1:4"'
 
 
+        # code for the Leads dashboard
+
+        #creating the pivot table for Leads
+        leads_pivot = raw_parsed.pivot_table(
+            index='TL Name',
+            values='ACT',
+            aggfunc='mean',
+            margins=True,
+            margins_name='Grand Total'
+        )
+        leads_pivot.reset_index(inplace=True)
+
+        # fixing the format of the time by using the round '00:00:00'
+        leads_pivot['ACT'] = (leads_pivot['ACT'].apply(lambda X : X.round('s'))).astype(str).str.split('days').str[1]
+
+
+        # Creating the pivot table for the Brand FRT
+        brand_frt_pivot = raw_parsed.pivot_table(
+            index='TL Name',
+            values='Brand FRT',
+            aggfunc='mean',
+            margins=True,
+            margins_name='Grand Total'
+        )
+
+        brand_frt_pivot.reset_index(inplace=True)
+
+        brand_frt_pivot['Brand FRT'] = (brand_frt_pivot['Brand FRT'].apply(lambda X : X.round('s'))).astype(str).str.split('days').str[1]
+
+        # Renaming the column name, so that we can merge the pivot later 
+        brand_frt_pivot.rename(columns={'TL Name':'TL Name 2'},inplace=True)
+
+        # Creating the pivot table for the handle chat
+        handle_chat_pivot = raw_parsed.pivot_table(
+            index='TL Name',
+            values='Case Reference Id',
+            aggfunc='count',
+            margins=True,
+            margins_name='Grand Total'
+        )
+
+        handle_chat_pivot.reset_index(inplace=True)
+
+        # renaming the column name
+        handle_chat_pivot.rename(columns={'TL Name':'TL Name 3'},inplace=True)
+
+        # Merging two pivot tables 
+        leads_pivot = leads_pivot.merge(
+            brand_frt_pivot[['TL Name 2','Brand FRT']],
+            right_on='TL Name 2',
+            left_on='TL Name',
+            how='left'
+        )
+        leads_pivot.drop(columns=['TL Name 2'],inplace=True)
+
+        # Merging the pivot table
+        leads_pivot = leads_pivot.merge(
+            handle_chat_pivot[['TL Name 3','Case Reference Id']],
+            left_on='TL Name',
+            right_on='TL Name 3',
+            how='left'
+        )
+
+        leads_pivot.drop(columns=['TL Name 3'],inplace=True)
+
+        # leads_pivot['ACT'] = pd.to_timedelta(leads_pivot['ACT'])
+        # leads_pivot['Brand FRT'] = pd.to_timedelta(leads_pivot['Brand FRT'])
+
     # Showing the data frame
     with c2:
         st.dataframe(Inflow_hourly_count)
     with c3:
         st.dataframe(mis_add)
+        st.dataframe(leads_pivot)
     st.write('Thanks for using, have greate day 😊')
 
