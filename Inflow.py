@@ -50,8 +50,8 @@ if raw_file_uploaded and roaster_file_uploaded:
     raw_parsed['AHT new'] = raw_parsed['Case Closure Time'] - raw_parsed['Case Last advisor assign time']
     raw_parsed['ACT'] = raw_parsed['Case Last Response Time'] - raw_parsed['Case First Response Time']
     raw_parsed['hour to fetch'] = raw_parsed['Case First Response Time'].dt.hour
-    raw_parsed['hour'] = raw_parsed['Case First Response Time'] - raw_parsed['Case Creation time']
-    raw_parsed['Avg hold time'] = raw_parsed.groupby('hour to fetch')['hour'].transform('mean')
+    raw_parsed['Response Delay'] = raw_parsed['Case First Response Time'] - raw_parsed['Case Creation time']
+    raw_parsed['Avg hold time'] = raw_parsed.groupby('hour to fetch')['Response Delay'].transform('mean')
     raw_parsed['Avg assign time'] = raw_parsed['Case First advisor assign time'] - raw_parsed['Case Creation time']
     raw_parsed['Brand FRT'] = raw_parsed['Case First Response Time'] - raw_parsed['Case First advisor assign time']
     raw_parsed['Actual advisor'] = raw_parsed['Case First Assigned to Advisor'] == raw_parsed['Case Last Assigned to Advisor']
@@ -448,11 +448,40 @@ if raw_file_uploaded and roaster_file_uploaded:
         # leads_pivot['ACT'] = pd.to_timedelta(leads_pivot['ACT'])
         # leads_pivot['Brand FRT'] = pd.to_timedelta(leads_pivot['Brand FRT'])
 
+
+        # Working on the top 4 Brand FRT
+        brand_frt_top4 = raw_parsed.sort_values('Brand FRT',ascending=False).head(4)
+
+        # Removing the unwanted columns from the data frame
+        brand_frt_top4 = brand_frt_top4[['Case Reference Id','Customer Phone','Case Creation time','Case First advisor assign time','Case First Assigned to Advisor','Case Last Assigned to Advisor','Case First Response Time','Notes','Brand FRT','Leads']]
+        # reseting the Index
+        brand_frt_top4.reset_index(inplace=True)
+
+        # Droping the index column
+        brand_frt_top4.drop(columns='index',inplace=True)
+
+        # fixing the format of the column
+        brand_frt_top4['Brand FRT'] = brand_frt_top4['Brand FRT'].astype(str).str.split('days').str[1]
+
+
+        # Working  on the top 4 AHT
+        AHT_top4 = raw_parsed.sort_values('Response Delay',ascending=False).head(4)
+        AHT_top4 = AHT_top4[['Case Reference Id','Customer Phone','Case Creation time','Case First advisor assign time','Case First Assigned to Advisor','Case Last Assigned to Advisor','Case First Response Time','Notes','Response Delay','Leads']]
+        AHT_top4['Response Delay'] = AHT_top4['Response Delay'].astype(str).str.split('days').str[1]
+        AHT_top4.reset_index(inplace=True)
+        AHT_top4.drop(columns='index',inplace=True)
+
+        
+
+
     # Showing the data frame
     with c2:
         st.dataframe(Inflow_hourly_count)
     with c3:
         st.dataframe(mis_add)
         st.dataframe(leads_pivot)
+        st.dataframe(brand_frt_top4)
+        st.dataframe(AHT_top4)
+
     st.write('Thanks for using, have greate day 😊')
 
