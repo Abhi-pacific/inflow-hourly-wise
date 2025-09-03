@@ -453,7 +453,7 @@ if raw_file_uploaded and roaster_file_uploaded:
         brand_frt_top4 = raw_parsed.sort_values('Brand FRT',ascending=False).head(4)
 
         # Removing the unwanted columns from the data frame
-        brand_frt_top4 = brand_frt_top4[['Case Reference Id','Customer Phone','Case Creation time','Case First advisor assign time','Case First Assigned to Advisor','Case Last Assigned to Advisor','Case First Response Time','Notes','Brand FRT','Leads']]
+        brand_frt_top4 = brand_frt_top4[['Case Reference Id','Customer Phone','Case Creation time','Case First advisor assign time','Case First Assigned to Advisor','Case Last Assigned to Advisor','Case First Response Time','Notes','Brand FRT','TL Name']]
         # reseting the Index
         brand_frt_top4.reset_index(inplace=True)
 
@@ -466,7 +466,7 @@ if raw_file_uploaded and roaster_file_uploaded:
 
         # Working  on the top 4 AHT
         AHT_top4 = raw_parsed.sort_values('Response Delay',ascending=False).head(4)
-        AHT_top4 = AHT_top4[['Case Reference Id','Customer Phone','Case Creation time','Case First advisor assign time','Case First Assigned to Advisor','Case Last Assigned to Advisor','Case First Response Time','Notes','Response Delay','Leads']]
+        AHT_top4 = AHT_top4[['Case Reference Id','Customer Phone','Case Creation time','Case First advisor assign time','Case First Assigned to Advisor','Case Last Assigned to Advisor','Case First Response Time','Notes','Response Delay','TL Name']]
         AHT_top4['Response Delay'] = AHT_top4['Response Delay'].astype(str).str.split('days').str[1]
         AHT_top4.reset_index(inplace=True)
         AHT_top4.drop(columns='index',inplace=True)
