@@ -335,16 +335,20 @@ if raw_file_uploaded and roaster_file_uploaded:
         (mis_add['chat'] == 'Brand FRT') & (mis_add['Particular'] == 'BRAND FRT (Overall, Including Outliers)'),date
         ] = avg_brand_frt
 
+        mis_add.loc[ 
+        (mis_add['chat'] == 'Brand FRT') & (mis_add['Particular'] == 'Brand FRT Unique Cases (Outliers Removed)'),date
+        ] = avg_brand_frt_outlier
+
         # "99.00%"
         s = (avg_brand_frt_outlier_count/avg_brand_frt_count)
         val_percent = f"{s * 100:.2f}%" 
 
         mis_add.loc[ 
-        (mis_add['chat'] == 'Brand FRT') & (mis_add['Particular'] == 'Brand FRT Unique Cases (Outliers Removed)'),date
+        (mis_add['chat'] == 'Brand FRT') & (mis_add['Particular'] == 'BRAND FRT (Achievement)'),date
         ] = val_percent
 
         mis_add.loc[ 
-        (mis_add['chat'] == 'Brand FRT') & (mis_add['Particular'] == 'Brand FRT Unique Cases (Outliers Removed)'),'Target'
+        (mis_add['chat'] == 'Brand FRT') & (mis_add['Particular'] == 'BRAND FRT (Achievement)'),'Target'
         ] = '>95%'
 
         mis_add.loc[ 
